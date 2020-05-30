@@ -35,10 +35,6 @@ func handleMsgCreateTask(ctx sdk.Context, k Keeper, msg MsgCreateTask) (*sdk.Res
 		Title:   msg.Title,
 	}
 	k.CreateTask(ctx, task)
-	ctx.EventManager().EmitEvent( // I'm not going into events right now.
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-		),
-	)
+
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
