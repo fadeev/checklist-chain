@@ -1,13 +1,17 @@
 package cli
 
 import (
+	// "bufio"
 	"fmt"
 
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	// "github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	// "github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
+	// "github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/fadeev/checklist-chain/x/checklist/types"
 )
 
