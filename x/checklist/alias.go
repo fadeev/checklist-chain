@@ -29,6 +29,7 @@ var (
 	// variable aliases
 	ModuleCdc = types.ModuleCdc
 	// TODO: Fill out variable aliases
+	NewMsgCreateTask = types.NewMsgCreateTask
 )
 
 type (
@@ -37,4 +38,5 @@ type (
 	Params       = types.Params
 
 	// TODO: Fill out module types
+	MsgCreateTask = types.MsgCreateTask
 )

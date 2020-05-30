@@ -57,3 +57,10 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // 	store := ctx.KVStore(k.storeKey)
 // 	store.Delete([]byte(key))
 // }
+
+func (k Keeper) CreateTask(ctx sdk.Context, task types.Task) {
+	store := ctx.KVStore(k.storeKey)
+	key := []byte(types.TaskPrefix + task.ID)
+	value := k.cdc.MustMarshalBinaryLengthPrefixed(task)
+	store.Set(key, value)
+}

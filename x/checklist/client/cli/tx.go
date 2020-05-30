@@ -1,13 +1,18 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
 
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/fadeev/checklist-chain/x/checklist/types"
 )
 
@@ -22,8 +27,9 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 
 	checklistTxCmd.AddCommand(flags.PostCommands(
-	// TODO: Add tx based commands
-	// GetCmd<Action>(cdc)
+		// TODO: Add tx based commands
+		// GetCmd<Action>(cdc)
+		GetCmdCreateTask(cdc),
 	)...)
 
 	return checklistTxCmd
@@ -52,3 +58,22 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // 		},
 // 	}
 // }
+
+func GetCmdCreateTask(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "create-task [title]",
+		Short: "Creates a new task",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			msg := types.NewMsgCreateTask(cliCtx.GetFromAddress(), args[0])
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+}
