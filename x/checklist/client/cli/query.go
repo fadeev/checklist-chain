@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	// "github.com/cosmos/cosmos-sdk/client/context"
@@ -29,9 +30,29 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 
 	checklistQueryCmd.AddCommand(
 		flags.GetCommands(
-		// TODO: Add query Cmds
+			// TODO: Add query Cmds
+			GetCmdListTasks(queryRoute, cdc),
 		)...,
 	)
 
 	return checklistQueryCmd
+}
+
+// GetCmdListTasks ...
+func GetCmdListTasks(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "list-tasks",
+		Short: "list all ctasks",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/"+types.QueryListTasks, queryRoute), nil)
+			if err != nil {
+				fmt.Printf("could not list tasks\n%s\n", err.Error())
+				return nil
+			}
+			var out []types.Task
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
 }
