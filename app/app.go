@@ -25,6 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/fadeev/checklist-chain/x/checklist"
 )
 
 const appName = "app"
@@ -33,12 +34,12 @@ var (
 	// TODO: rename your cli
 
 	// DefaultCLIHome default home directories for the application CLI
-	DefaultCLIHome = os.ExpandEnv("$HOME/.appli")
+	DefaultCLIHome = os.ExpandEnv("$HOME/.checklistcli")
 
 	// TODO: rename your daemon
 
 	// DefaultNodeHome sets the folder where the applcation data and configuration will be stored
-	DefaultNodeHome = os.ExpandEnv("$HOME/.appd")
+	DefaultNodeHome = os.ExpandEnv("$HOME/.checklistd")
 
 	// ModuleBasics The module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
@@ -53,6 +54,7 @@ var (
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
 		// TODO: Add your module(s) AppModuleBasic
+		checklist.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -100,6 +102,7 @@ type NewApp struct {
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
 	// TODO: Add your module(s)
+	checklistKeeper checklist.Keeper
 
 	// Module Manager
 	mm *module.Manager
@@ -126,7 +129,7 @@ func NewInitApp(
 
 	// TODO: Add the keys that module requires
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
-		supply.StoreKey, distr.StoreKey, slashing.StoreKey, params.StoreKey)
+		supply.StoreKey, distr.StoreKey, slashing.StoreKey, params.StoreKey, checklist.StoreKey)
 
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -208,6 +211,12 @@ func NewInitApp(
 
 	// TODO: Add your module(s) keepers
 
+	app.checklistKeeper = checklist.NewKeeper(
+		app.bankKeeper,
+		app.cdc,
+		keys[checklist.StoreKey],
+	)
+
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
@@ -218,9 +227,9 @@ func NewInitApp(
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 		// TODO: Add your module(s)
+		checklist.NewAppModule(app.checklistKeeper, app.bankKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
-
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
@@ -239,6 +248,7 @@ func NewInitApp(
 		bank.ModuleName,
 		slashing.ModuleName,
 		// TODO: Add your module(s)
+		checklist.ModuleName,
 		supply.ModuleName,
 		genutil.ModuleName,
 	)

@@ -5,8 +5,8 @@ COMMIT := $(shell git log -1 --format='%H')
 
 # TODO: Update the ldflags with the app, client & server names
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=NewApp \
-	-X github.com/cosmos/cosmos-sdk/version.ServerName=appd \
-	-X github.com/cosmos/cosmos-sdk/version.ClientName=appcli \
+	-X github.com/cosmos/cosmos-sdk/version.ServerName=checklistd \
+	-X github.com/cosmos/cosmos-sdk/version.ClientName=checklistcli \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) 
 
@@ -15,8 +15,8 @@ BUILD_FLAGS := -ldflags '$(ldflags)'
 all: install
 
 install: go.sum
-		go install -mod=readonly $(BUILD_FLAGS) ./cmd/appd
-		go install -mod=readonly $(BUILD_FLAGS) ./cmd/appcli
+		go install -mod=readonly $(BUILD_FLAGS) ./cmd/checklistd
+		go install -mod=readonly $(BUILD_FLAGS) ./cmd/checklistcli
 
 go.sum: go.mod
 		@echo "--> Ensure dependencies have not been modified"
